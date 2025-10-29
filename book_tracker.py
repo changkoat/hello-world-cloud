@@ -7,7 +7,6 @@ app = Flask(__name__)
 def init_db():
     with sqlite3.connect('books.db') as conn:
         c = conn.cursor()
-        # Create a simple table with title, author, and year
         c.execute('''CREATE TABLE IF NOT EXISTS books (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -15,6 +14,11 @@ def init_db():
             year INTEGER
         )''')
         conn.commit()
+
+# Home route redirects to /books
+@app.route('/', methods=['GET'])
+def home():
+    return redirect(url_for('books'))
 
 # Route to list all books and provide a search form
 @app.route('/books', methods=['GET'])
@@ -24,14 +28,12 @@ def books():
     with sqlite3.connect('books.db') as conn:
         c = conn.cursor()
         if search:
-            # Perform a search on title, author, or year fields
             query = "SELECT id, title, author, year FROM books WHERE title LIKE ? OR author LIKE ? OR CAST(year AS TEXT) LIKE ?"
             params = (f'%{search}%', f'%{search}%', f'%{search}%')
             c.execute(query, params)
         else:
             c.execute("SELECT id, title, author, year FROM books")
         rows = c.fetchall()
-        # Convert rows to list of dictionaries for template
         books_list = []
         for row in rows:
             books_list.append({
@@ -55,7 +57,6 @@ def add_book():
             c.execute('INSERT INTO books (title, author, year) VALUES (?, ?, ?)', (title, author, year))
             conn.commit()
         return redirect(url_for('books'))
-    # Render the form to add a new book
     return render_template('add_book.html')
 
 # Main entry point when running this script directly
