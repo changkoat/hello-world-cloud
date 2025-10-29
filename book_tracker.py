@@ -59,3 +59,5 @@ def add_book():
             <input type="submit" value="Add">
         </form>
     '''
+if __name__ == '__main__':
+    app.run(debug=True)
